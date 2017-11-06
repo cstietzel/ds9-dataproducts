@@ -1,0 +1,72 @@
+---
+title: "Connecticut Public High School Map"
+author: "Chuck Stietzel"
+date: "11/2/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(leaflet)
+```
+
+## Synopsis
+
+
+## Data Preparation
+
+
+```{r dataprep, eval = FALSE}
+schools <- read_csv("~/EdDataCT/schools.csv", skip = 3, 
+                    col_names  = c("OrganizationType", "District", "OrganizationCode",
+                                   "OrganizationName", "Street", "City", "State", 
+                                   "ZIP", "Phone", "Fax", "Website", "EdProgram",
+                                   "ProgramType", "InterDistrictMagnet",
+                                   "PreKindergarten", "Kindergarten", "Grade01",
+                                   "Grade02", "Grade03", "Grade04", "Grade05",
+                                   "Grade06", "Grade07", "Grade08", "Grade09",
+                                   "Grade10", "Grade11", "Grade12")) %>% 
+  ## Remove all '=' and '"' symbols from file
+  mutate_all(function(x) gsub("[=\"]+", "", x)) %>% rowwise() %>%
+  
+  ## Grades are indicated by 1 or 0.  Assume NA is 0.
+  mutate_at(vars(PreKindergarten:Grade12),
+            function (x) if (is.na(x)) 0 else as.numeric(x)) %>%
+  
+  ## Select only Schools that offer 9-12 and are affiliated with a town district
+  filter((Grade09 + Grade12 == 2) & (State == "CT") & 
+           !is.na(District) & grepl("School", OrganizationType)) %>%
+  
+  ## Add a gps location column to botate coordinates
+  mutate(gpsaddr = paste(OrganizationName, City, "CT", sep = ", "))
+
+## Get gps locations
+library(ggmap)
+locs <- geocode(schools$gpsaddr)
+noloc<-which(is.na(locs$lon))
+swl <- mutate(schools[-noloc,], longitude = locs[-noloc,]$lon, latitude = locs[-noloc,]$lat)
+
+## Retry for all schools that did not get a location the first time
+## Due to timeout or going over API limit
+locsna <- geocode(schools[noloc,]$gpsaddr)
+swol <- mutate(schools[noloc,], longitude = locsna$lon, latitude=locsna$lat)
+schools <- bind_rows(swl, swol)
+```
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+schools <- read_csv("~/coursera/ct_edu/school_w_loc.csv")
+
+leaflet(schools) %>% 
+  addTiles() %>%
+addMarkers(clusterOptions = markerClusterOptions(),
+           popup = schools$OrganizationName)
+
+```
+
