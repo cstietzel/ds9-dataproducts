@@ -14,12 +14,16 @@ library(leaflet)
 ```
 
 ## Synopsis
-
+The following web page displays a map of the state of Connecticut with the location of each 4-year public high school along with the enrollment for the 2014-15 academic year. The data for the schools was obtained from the State of Connecticut's [EdSight](http://edsight.ct.gov/SASPortal/main.do) web portal. A circle centered at the location of the school is proportional to number of students.  
 
 ## Data Preparation
+A file of school basic information such as name, address and flags indicating the presence of a grade level was downloaded.  All numeric values in the file were preceded by an equal sign (=) and enclosed in quotes (" ").  These were stripped leaving the numerical value. If a flag was NA, the value was converted to 0 indicating the the school did not have that grade. The data was filtered to include only public schools that taught both the 9th and 12th grades.
 
+Geocoding was performed using the ***ggmap*** package with the school's name and city as the location.  
 
-```{r dataprep, eval = FALSE}
+The code for processing the file and geocoding the schools is included here but not executed.  The resulting transformed data was stored in a file to be used later. The geocoding takes a long time to execute and the `geocode` API suffers from timeouts and call limits.
+
+```{r school_geocode, eval = FALSE}
 schools <- read_csv("~/EdDataCT/schools.csv", skip = 3, 
                     col_names  = c("OrganizationType", "District", "OrganizationCode",
                                    "OrganizationName", "Street", "City", "State", 
@@ -29,6 +33,7 @@ schools <- read_csv("~/EdDataCT/schools.csv", skip = 3,
                                    "Grade02", "Grade03", "Grade04", "Grade05",
                                    "Grade06", "Grade07", "Grade08", "Grade09",
                                    "Grade10", "Grade11", "Grade12")) %>% 
+  
   ## Remove all '=' and '"' symbols from file
   mutate_all(function(x) gsub("[=\"]+", "", x)) %>% rowwise() %>%
   
@@ -40,7 +45,7 @@ schools <- read_csv("~/EdDataCT/schools.csv", skip = 3,
   filter((Grade09 + Grade12 == 2) & (State == "CT") & 
            !is.na(District) & grepl("School", OrganizationType)) %>%
   
-  ## Add a gps location column to botate coordinates
+  ## Add a gps location column to acquire coordinates
   mutate(gpsaddr = paste(OrganizationName, City, "CT", sep = ", "))
 
 ## Get gps locations
@@ -56,17 +61,30 @@ swol <- mutate(schools[noloc,], longitude = locsna$lon, latitude=locsna$lat)
 schools <- bind_rows(swl, swol)
 ```
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The enrollments for the 2014-15 school year were obtained from EdSight and joined to the school data.  Similar to the school data, the District and School codes in the enrollment file were preceded by an equal sign (=) and enclosed in quotes (" ").  These were stripped leaving the numerical value.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
+```{r add_enrollment, warning=FALSE, message=FALSE}
 schools <- read_csv("~/coursera/ct_edu/school_w_loc.csv")
 
-leaflet(schools) %>% 
+enrollment <- read_csv("~/EdDataCT/enrollmentSingleYear14-15.csv", skip = 6, na = "*",
+                    col_names  = c("DistrictName", "DistrictCode", "SchoolName",
+                                   "SchoolCode", "NativeAmerican", "Asian", "Black", 
+                                   "Hispanic", "Islander", "Mixed", "White", "Total")) %>% 
+  
+  ## Remove all '=' and '"' symbols from file
+  mutate_at(vars(DistrictCode, SchoolCode), function(x) as.integer(gsub("[=\"]+", "", x)))
+
+hsenroll <- inner_join(schools, enrollment, by = c("OrganizationCode" = "SchoolCode")) %>% 
+  select(SchoolName, Total, latitude, longitude)
+```
+
+## Map Presentation
+Each school obtained a marker that would produce a popup with the school's enrollment when clicked.  The school's name will appear on mouse-over.  A circle centered at the marker is drawn with a size that is proportional to the school's enrollment.
+```{r make_map }
+leaflet(hsenroll) %>% 
   addTiles() %>%
-addMarkers(clusterOptions = markerClusterOptions(),
-           popup = schools$OrganizationName)
+  addCircles(weight = 1, radius = ~Total) %>%
+  addMarkers(label = ~SchoolName, popup = ~paste("2014-15 Students: ", Total))
 
 ```
 
