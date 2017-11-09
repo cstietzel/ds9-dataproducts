@@ -1,0 +1,79 @@
+---
+title: "CT High School Analysis"
+author: "Chuck Stietzel"
+date: "11/7/2017"
+output: ioslides_presentation
+---
+
+<style type="text/css">
+pre {
+  font-size: 12px;
+  line-height: 16px;
+  padding: 0px 0px 10px 60px;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(plotly)
+library(knitr)
+opts_chunk$set(echo = FALSE)
+
+```
+
+## CT High School Data
+- Data obtained from State of Connecticut's [EdSight](http://edsight.ct.gov/SASPortal/main.do) web portal
+- Academic year 2014-15
+- Enrollment bucketed
+    - Small : less than 500
+    - Medium: between 500 and 100
+    - Large: more than 1000
+- Per pupil spending was obtained at the district level
+- Absenteeism obtained at the school level
+
+## Data Processing Code {#codeslide}
+
+```{r dataprep, warning=FALSE, message=FALSE, echo=TRUE}
+## Get School Data
+schools <- read_csv("~/coursera/ct_edu/school_w_loc.csv")
+
+## Get School Enrollment Data
+enrollment <- read_csv("~/EdDataCT/enrollmentSingleYear14-15.csv", skip = 6, na = "*",
+                       col_names  = c("DistrictName", "DistrictCode", "SchoolName", "SchoolCode", "NativeAmerican", 
+                                      "Asian", "Black", "Hispanic", "Islander", "Mixed", "White", "Total")) %>% 
+  
+  ## Remove all '=' and '"' symbols from file
+  mutate_at(vars(DistrictCode, SchoolCode), function(x) as.integer(gsub("[=\"]+", "", x)))
+
+## Get Absenteeism data
+absent <- read_csv("~/EdDataCT/chronicAbsenteeism14-15.csv", skip = 4, na = "*",
+                   col_names  = c("DistrictName", "DistrictCode", "SchoolName", "SchoolCode", "PctAbsent")) %>% 
+  
+  ## Remove all '=' and '"' symbols from file
+  mutate_at(vars(DistrictCode, SchoolCode), function(x) as.integer(gsub("[=\"]+", "", x))) %>%
+  select(SchoolCode, PctAbsent)
+
+## Get Per Pupil Spending data
+pupilspend <- read_csv("~/EdDataCT/perPupilExpeditures14-15.csv", skip = 5, na = "N/A", 
+                       col_names  = c("DistrictName", "TeachingStaff", "TeachingSupplies", "MediaServices", "StudentSupport", 
+                                      "Administration", "Facilities", "Transportation", "Other", "TotalPP")) %>% 
+
+    ## Remove all '=' and '"' symbols from file
+  mutate_at(vars(DistrictName), function(x) gsub("[=\"]+", "", x))
+
+hsdata <- semi_join(enrollment, schools, by = c("SchoolCode" = "OrganizationCode")) %>%
+  inner_join(absent, by = "SchoolCode") %>%
+  inner_join(pupilspend, by = "DistrictName") %>%
+
+    ## Add School Size Factor
+  mutate(Size = cut(Total, breaks=c(0,500,1000,3000), labels = c("Small", "Medium", "Large")))
+```
+
+## District Spending vs Absentee Rate
+
+```{r plot, warning=FALSE, message=FALSE, echo=TRUE}
+y <- list(title = "Per Pupil Spending ($)"); x <- list(title = "School Days Missed (%)")
+plot_ly(hsdata, x = ~PctAbsent, y = ~TotalPP, type = "scatter", color = ~Size, size = ~Total, text = ~SchoolName) %>%
+  layout(autosize = F, width = 750, height = 450, xaxis = x, yaxis = y)
+```
+
