@@ -1,0 +1,28 @@
+<h3>Overview</h3>
+
+<p>This application allows you to explore the Class of 2015 at public schools in the state of Connecticut.  You can view the Graduation Rate or College Entry Rate as a function of on of the following variables: Absentee Rate, Total District Spend per Pupil, or Total School Enrollment.</p>
+
+<h3>Data Selection</h3>
+<p>The selection high school outcomes and variables can be selected from the drop down boxes on the left-hand input panel. </p>
+<i><b>Outcomes</b></i>
+<ul>
+  <li><i>Graduation Rate</i>: The percentage of students in the Class of 2015 cohort that graduated in four years</li>
+  <li><i>College Entry Rate</i>: The percentage of students in the Class of 2015 cohort that entered a post secondary school</li>
+</ul>
+<I><B>Variables</B></I>
+<ul>
+  <li><i>Absentee Rate</i>: Average absentee rate for school in academic years 2011/12 to 2014/15</li>
+  <li><i>Per Pupil Spend</i>: Average spend in $'s on each pupil in the school's district in academic years 2011/12 to 2014/15</li>
+  <li><i>Enrollment</i>: Average total school enrollment in academic years 2011/12 to 2014/15</li>
+</ul>
+
+<h3>Output Tabs</h3>
+<p>Each of the tabs in the application show show aspects of the data based on the selected Outcomes and Variable.  Click on the the tab to show the results.</p>
+<i><b>Scatterplot</b></i>
+<p>A scatterplot of the items selected is displayed.  In addition a linear model using the two selections is overlayed that shows the relationship between the outcome and the selected variable as well as the 95% error round the least squares fit. Mousing over a point with display the values for the outcome and variable</p>
+<i><b>Distribution</b></i>
+<p>Histograms of the data for the outcome and variable selected are displayed.</p>
+<i><b>Model Summary</b></i>
+<p>The summary output for the linear model is shown.  The model is produced using the <i>lm</i> function.  This is the standard <b>R</b> output that shows the coefficient values for the intercept and selected variable as well as p-scores for each.</p>
+<i><b>Data</b></i>
+<p>This tab shows the complete data set used for the application. The search box can be used to find schools or districts.  Each column can be sorted by clicking on the column heading.</p>
