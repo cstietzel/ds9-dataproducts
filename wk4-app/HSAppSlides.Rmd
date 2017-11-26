@@ -1,7 +1,7 @@
 ---
 title: "2015 CT High School Analysis"
 author: "Chuck Stietzel"
-date: "11/7/2017"
+date: "11/24/2017"
 output: ioslides_presentation
 ---
 
@@ -21,7 +21,7 @@ opts_chunk$set(echo = FALSE)
 
 ```
 ## High School Analysis
-- There is a great deal of interest in improving the performance of public education. This application attempts to use a simplistic model of using data published by the State of Connecticut to illustrate potential relationships between outcomes and input variables.
+- There is a great deal of interest in improving the performance of public education. This application employs a simplistic linear model using data published by the State of Connecticut to illustrate potential relationships between outcomes and input variables.
 
 -  App Features:
     - Select from different performance outcomes
@@ -30,8 +30,8 @@ opts_chunk$set(echo = FALSE)
     - View all of the study data in a user-friendly way
 
 ## CT High School Data
-- Absenteeism and pupil spending was plotted to explore the data
 - Data obtained from State of Connecticut's [EdSight](http://edsight.ct.gov/SASPortal/main.do) web portal
+- As an exploratory analysis Absenteeism and Pupil Spending were plotted
 - Enrollment was bucketed
     - Small : less than 500
     - Medium: between 500 and 100
@@ -41,10 +41,10 @@ opts_chunk$set(echo = FALSE)
 
 ```{r dataprep, warning=FALSE, message=FALSE, echo=FALSE}
 ## Get School Data
-schools <- read_csv("~/coursera/ct_edu/school_w_loc.csv")
+schools <- read_csv("../data/school_w_loc.csv")
 
 ## Get School Enrollment Data
-enrollment <- read_csv("~/EdDataCT/enrollmentSingleYear14-15.csv", skip = 6, na = "*",
+enrollment <- read_csv("../data/enrollmentSingleYear14-15.csv", skip = 6, na = "*",
                        col_names  = c("DistrictName", "DistrictCode", "SchoolName", "SchoolCode", "NativeAmerican", 
                                       "Asian", "Black", "Hispanic", "Islander", "Mixed", "White", "Total")) %>% 
   
@@ -60,7 +60,7 @@ absent <- read_csv("~/EdDataCT/chronicAbsenteeism14-15.csv", skip = 4, na = "*",
   select(SchoolCode, PctAbsent)
 
 ## Get Per Pupil Spending data
-pupilspend <- read_csv("~/EdDataCT/perPupilExpeditures14-15.csv", skip = 5, na = "N/A", 
+pupilspend <- read_csv("../data/perPupilExpeditures14-15.csv", skip = 5, na = "N/A", 
                        col_names  = c("DistrictName", "TeachingStaff", "TeachingSupplies", "MediaServices", "StudentSupport", 
                                       "Administration", "Facilities", "Transportation", "Other", "TotalPP")) %>% 
 
@@ -82,18 +82,22 @@ plot_ly(hsdata, x = ~PctAbsent, y = ~TotalPP, type = "scatter", color = ~Size, s
   layout(autosize = F, width = 750, height = 450, xaxis = x, yaxis = y, title = "Academic Year 2014/15")
 ```
 
-## 2015 High School Performance App
+## 2015 High School Performance App {.smaller}
 - Inputs are averages of academic years 2011/12 to 2014/15
     - <font size="4">Absenteeism and Enrollment obtained at the school level</font>
     - <font size="4">Per Pupil Spending obtained at the district level</font>
 
+<BR>
+
 - Student performance outcomes are for the Class of 2015 cohort
     - <font size="4">*Graduation Rate*: % of students that graduated in four years</font>
     - <font size="4">*College Entry Rate*: % of students that entered a post secondary school</font>
-    
+  
+<BR>
+  
 - Links
     - <font size="4">HSApp shiny application</font>
     - <font size="4">Link to pitch book on Github:</font>
-    - <font size="4">Code and RMD on Github:</font>
+    - <font size="4">Code and Rmd on Github:</font>
     
     
