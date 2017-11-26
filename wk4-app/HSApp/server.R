@@ -8,7 +8,7 @@ options(warn =-1)
 
 ## Get Absenteeism data
 absent <- data_frame()
-files <- list.files(path="../../data", pattern = "chronicAbsenteeism", full.names = TRUE)
+files <- list.files(path="data", pattern = "chronicAbsenteeism", full.names = TRUE)
 for (f in files) {
   flen <- nchar(f)
   tempdf = read_csv(f, skip = 4, na = "*",
@@ -28,7 +28,7 @@ for (f in files) {
 
 ## Get Per Pupil Spending data
 spending <- data_frame()
-files <- list.files(path="../../data", pattern = "perPupilExpeditures", full.names = TRUE)
+files <- list.files(path="data", pattern = "perPupilExpeditures", full.names = TRUE)
 for (f in files) {
   flen <- nchar(f)
   tempdf <- read_csv(f, skip = 5, na = "N/A", 
@@ -42,7 +42,7 @@ for (f in files) {
 
 ## Get School Enrollment Data
 enrollment <- data_frame()
-files <- list.files(path="../../data", pattern = "enrollmentSingleYear", full.names = TRUE)
+files <- list.files(path="data", pattern = "enrollmentSingleYear", full.names = TRUE)
 for (f in files) {
   flen <- nchar(f)
   tempdf <- read_csv(f, skip = 6, na = "*",
@@ -65,7 +65,7 @@ hsdata <- inner_join(absent, enrollment, by = c("SchoolCode", "SchoolYear")) %>%
   summarize_all(function (x) {signif(mean(x, na.rm=TRUE), 4)})
 
 ## Load graduation and college entry rates for class of 2015
-results <- read_xlsx(path="../../data/nextgenresults15-16.xlsx", sheet = 3) %>%
+results <- read_xlsx(path="data/nextgenresults15-16.xlsx", sheet = 3) %>%
   filter(grepl("School", SchoolOrgType) & !is.na(Ind8Rate) & 
            SchoolLowGrade == 9 & SchoolHighGrade == 12) %>%
   select(SchoolCode, SchoolOrgType, GradRate = Ind8Rate, CollegeRate = Ind10Rate) %>%

@@ -41,10 +41,10 @@ opts_chunk$set(echo = FALSE)
 
 ```{r dataprep, warning=FALSE, message=FALSE, echo=FALSE}
 ## Get School Data
-schools <- read_csv("../data/school_w_loc.csv")
+schools <- read_csv("HSApp/data/school_w_loc.csv")
 
 ## Get School Enrollment Data
-enrollment <- read_csv("../data/enrollmentSingleYear14-15.csv", skip = 6, na = "*",
+enrollment <- read_csv("HSApp/data/enrollmentSingleYear14-15.csv", skip = 6, na = "*",
                        col_names  = c("DistrictName", "DistrictCode", "SchoolName", "SchoolCode", "NativeAmerican", 
                                       "Asian", "Black", "Hispanic", "Islander", "Mixed", "White", "Total")) %>% 
   
@@ -52,7 +52,7 @@ enrollment <- read_csv("../data/enrollmentSingleYear14-15.csv", skip = 6, na = "
   mutate_at(vars(DistrictCode, SchoolCode), function(x) as.integer(gsub("[=\"]+", "", x)))
 
 ## Get Absenteeism data
-absent <- read_csv("~/EdDataCT/chronicAbsenteeism14-15.csv", skip = 4, na = "*",
+absent <- read_csv("HSApp/data/chronicAbsenteeism14-15.csv", skip = 4, na = "*",
                    col_names  = c("DistrictName", "DistrictCode", "SchoolName", "SchoolCode", "PctAbsent")) %>% 
   
   ## Remove all '=' and '"' symbols from file
@@ -60,7 +60,7 @@ absent <- read_csv("~/EdDataCT/chronicAbsenteeism14-15.csv", skip = 4, na = "*",
   select(SchoolCode, PctAbsent)
 
 ## Get Per Pupil Spending data
-pupilspend <- read_csv("../data/perPupilExpeditures14-15.csv", skip = 5, na = "N/A", 
+pupilspend <- read_csv("HSApp/data/perPupilExpeditures14-15.csv", skip = 5, na = "N/A", 
                        col_names  = c("DistrictName", "TeachingStaff", "TeachingSupplies", "MediaServices", "StudentSupport", 
                                       "Administration", "Facilities", "Transportation", "Other", "TotalPP")) %>% 
 
@@ -96,8 +96,8 @@ plot_ly(hsdata, x = ~PctAbsent, y = ~TotalPP, type = "scatter", color = ~Size, s
 <BR>
   
 - Links
-    - <font size="4">HSApp shiny application</font>
-    - <font size="4">Link to pitch book on Github:</font>
-    - <font size="4">Code and Rmd on Github:</font>
+    - <font size="4">HSApp application on shinyapps.io: [HSApp](https://cstietzel.shinyapps.io/HSApp/)</font>
+    - <font size="4">Link to pitch book on Github: [HSAppSlides.html](https://cstietzel.github.io/ds9-dataproducts/wk4-app/HSAppSlides.html)</font>
+    - <font size="4">Code and Rmd on Github: [HSApp Code](https://github.com/cstietzel/ds9-dataproducts/tree/gh-pages/wk4-app)</font>
     
     
